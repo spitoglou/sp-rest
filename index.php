@@ -2,19 +2,29 @@
     /**
     * RESTful Services Database Wrapper
     *  
-    * @PHPVER    5
+    * @PHPVER   5
     *
-    * @author    Stavros Pitoglou
-    * @ver        0001.0001
-    * @date    15/01/2013
+    * @author   Stavros Pitoglou
+    * @version  0.1
+    * @date     15/01/2013
+    * @license  GPL,LGPL
     */
 
 
+    /**
+    * ez_sql db wrapper
+    */
     include("lib/ezsql/shared/ez_sql_core.php");
     include("lib/ezsql/mysql/ez_sql_mysql.php");
 
+    /**
+    * Generic Functions
+    */
     include("functions.inc");
 
+    /**
+    * Array2Xml
+    */
     include("lib/class.array2xml2array.php");
 
     $method = $_SERVER['REQUEST_METHOD'];
@@ -22,8 +32,10 @@
 
     
     //determine output format (json, xml) based on call's "Accept" header
-    $h=getallheaders('Accept');
-    //echo $h;//test
+   
+    $h=getheaders('Accept');
+    
+    //echo $h;//test 
     if (strpos($h,'json')>-1 or strpos($h,'*/*')>-1) {
         $output = 'json';
     } elseif   (strpos($h,'xml')>-1) {

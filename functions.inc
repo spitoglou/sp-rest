@@ -1,31 +1,34 @@
 <?php
+          
     /**
-    The following function gets the http headers of a client request
-    when php is running as CGI
-    Found it here: http://www.binarytides.com/get-http-request-headers-in-php/
+    * gets the http headers of a client request (Idea and core code: http://www.binarytides.com/get-http-request-headers-in-php/)
+    * 
+    * @param mixed $q Specific http header
+    * @return array 
     */
-
-    if(!function_exists('getallheaders'))
+    
+    function getheaders($q) 
     {
-        function getallheaders($q) 
+        foreach($_SERVER as $name => $value)
         {
-            foreach($_SERVER as $name => $value)
+            if(substr($name, 0, 5) == 'HTTP_')
             {
-                if(substr($name, 0, 5) == 'HTTP_')
-                {
-                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-                }
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
             }
-            if (!$q) {
-                return $headers;
-            } else {
-                return $headers[$q];
-            }
+        }
+        if (!$q) {
+            return $headers;
+        } else {
+            return $headers[$q];
         }
     }
 
+    /**
+    * echoes all http headers
+    * 
+    */
     function dump_headers() {
-        foreach (getallheaders() as $name => $value) 
+        foreach (getheaders() as $name => $value) 
         {
             echo "$name: $value\n";
 
