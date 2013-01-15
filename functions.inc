@@ -4,9 +4,10 @@
     when php is running as CGI
     Found it here: http://www.binarytides.com/get-http-request-headers-in-php/
     */
+
     if(!function_exists('getallheaders'))
     {
-        function getallheaders() 
+        function getallheaders($q) 
         {
             foreach($_SERVER as $name => $value)
             {
@@ -15,7 +16,11 @@
                     $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
                 }
             }
-            return $headers;
+            if (!$q) {
+                return $headers;
+            } else {
+                return $headers[$q];
+            }
         }
     }
 
@@ -26,4 +31,6 @@
 
         }
     }
+
+
 ?>
