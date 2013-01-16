@@ -30,6 +30,11 @@
     $method = $_SERVER['REQUEST_METHOD'];
     $request = explode("/", substr(@$_SERVER['PATH_INFO'], 1));
 
+    $out=validate($request);
+    if ($out<>"OK") {
+        header("HTTP/1.0 400 Bad Request"); //400:Bad Request
+        die($out);
+    }
 
     //determine output format (json, xml) based on call's "Accept" header
 
@@ -91,7 +96,7 @@
 
                 }
             } else {
-                header("Status: 404"); //404:Not Found
+                header("HTTP/1.0 404 Not Found"); //404:Not Found
                 die(); 
             }
 
