@@ -30,11 +30,11 @@
     $method = $_SERVER['REQUEST_METHOD'];
     $request = explode("/", substr(@$_SERVER['PATH_INFO'], 1));
 
-    
+
     //determine output format (json, xml) based on call's "Accept" header
-   
+
     $h=getheaders('Accept');
-    
+
     //echo $h;//test 
     if (strpos($h,'json')>-1 or strpos($h,'*/*')>-1) {
         $output = 'json';
@@ -52,7 +52,7 @@
     $db->query("SET NAMES utf8") ;
     $db->query("SET CHARACTER SET utf8") ;
 
-    
+
     //for every collection mapped to the Database there has to be a line:
     //$collections[{collection_name}]={table_name}
     $collections = array();  
@@ -67,28 +67,35 @@
             break;
         case 'GET':
 
-        if (count($request)==1) {
-            $result = $db->get_results("SELECT * FROM ".$collections[$request[0]],ARRAY_A);
-        } else {
-            $result = $db->get_results("SELECT * FROM ".$collections[$request[0]]." where id=".$request[1],ARRAY_A);   
-        }
+            if (count($request)==1) {
+                $result = $db->get_results("SELECT * FROM ".$collections[$request[0]],ARRAY_A);
+            } else {
+                $result = $db->get_results("SELECT * FROM ".$collections[$request[0]]." where id=".$request[1],ARRAY_A);   
+            }
 
-        switch ($output) {
-            case 'json':
-                header('Content-type: application/json');
-                echo json_encode($result);
-                break;
+            if (count($result)>0) {
 
-            case 'xml':
-                header('Content-type: text/xml');    
-                $array2XML = new CArray2xml2array();       
-                $array2XML->setArray($result);
-                echo $array2XML->saveArray('results');
-                break;
 
-        }
+                switch ($output) {
+                    case 'json':
+                        header('Content-type: application/json');
+                        echo json_encode($result);
+                        break;
 
-        break;
+                    case 'xml':
+                        header('Content-type: text/xml');    
+                        $array2XML = new CArray2xml2array();       
+                        $array2XML->setArray($result);
+                        echo $array2XML->saveArray('results');
+                        break;
+
+                }
+            } else {
+                header("Status: 404"); //404:Not Found
+                die(); 
+            }
+
+            break;
         case 'HEAD':
             //rest_head($request);  
             break;
