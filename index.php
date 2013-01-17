@@ -79,8 +79,11 @@
         case 'PUT':
             //not implemented yet  
             break;
-        case 'POST':
-            //not implemented yet  
+        case 'POST':   //under construction 
+            echo dump_headers();
+            print_r($_POST);
+            print_r($_SERVER);
+              
             break;
         case 'GET':
 
