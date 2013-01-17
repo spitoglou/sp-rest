@@ -6,6 +6,21 @@ RESTful Services Database Wrapper
   
 (TBD)
 
+##Usage
+
+(TBD)
+
+##ChangeLog
+
+17/1/2013
+* created new file to hold configuration details - config.inc  
+* created new file for the database connection - db_conn.inc (having in mind future db abstraction)
+* created new file for collections definitons - collections.inc
+* Added query support to the GET method
+* Added validations - whitelisting for error and sql injection prevention
+* Added support for the DELETE method  
+ 
+
 ## Libraries - Snippets used
 
 _ezsql_ for database wrapping (because it rocks...)
