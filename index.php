@@ -10,12 +10,21 @@
     * @license  GPL,LGPL
     */
 
+    /**
+    * Configuration File 
+    */
+    include("config.inc");
 
     /**
     * ez_sql db wrapper
     */
     include("lib/ezsql/shared/ez_sql_core.php");
     include("lib/ezsql/mysql/ez_sql_mysql.php");
+
+    /**
+    * Database connection
+    */
+    include("db_conn.inc");
 
     /**
     * Generic Functions
@@ -27,53 +36,62 @@
     */
     include("lib/class.array2xml2array.php");
 
+    /**
+    * Collections Definitions
+    */
+    include("collections.inc");
+
+
     $method = $_SERVER['REQUEST_METHOD'];
     $request = explode("/", substr(@$_SERVER['PATH_INFO'], 1));
+    //print_r($_GET);
 
+    //request validation and whitelisting
     $out=validate($request);
     if ($out<>"OK") {
         header("HTTP/1.0 400 Bad Request"); //400:Bad Request
         die($out);
     }
 
+
+    //process get queries if present
+    $query='';
+    if (count($_GET)>0 and !($query=process_query($request[0],$_GET))) {
+        header("HTTP/1.0 400 Bad Request"); //400:Bad Request
+        die('Problem with the query (?...) part of the uri');
+    } 
+    //echo $query;
+
     //determine output format (json, xml) based on call's "Accept" header
-
     $h=getheaders('Accept');
-
-    //echo $h;//test 
     if (strpos($h,'json')>-1 or strpos($h,'*/*')>-1) {
         $output = 'json';
     } elseif   (strpos($h,'xml')>-1) {
         $output='xml';
 
     }   else {
-        header("Status: 400"); //400:Bad Request
+        header("HTTP/1.0 400 Bad Request"); //400:Bad Request 
         die('Not supported method defined in call headers');
     }
 
-    //connection to database
-    $db = new ezSQL_mysql('root','','rest_test','localhost');
-    // needed to display greek characters correctly
-    $db->query("SET NAMES utf8") ;
-    $db->query("SET CHARACTER SET utf8") ;
-
-
-    //for every collection mapped to the Database there has to be a line:
-    //$collections[{collection_name}]={table_name}
-    $collections = array();  
-    $collections["test"]="rest1";
-
+    //main response procedures
     switch ($method) {
         case 'PUT':
-            //rest_put($request);  
+            //not implemented yet  
             break;
         case 'POST':
-            //rest_post($request);  
+            //not implemented yet  
             break;
         case 'GET':
 
             if (count($request)==1) {
-                $result = $db->get_results("SELECT * FROM ".$collections[$request[0]],ARRAY_A);
+                if ($query){
+                    $result = $db->get_results("SELECT * FROM ".$collections[$request[0]]." where $query",ARRAY_A);
+                    //$db->debug(); 
+                }   else {
+                    $result = $db->get_results("SELECT * FROM ".$collections[$request[0]],ARRAY_A); 
+                }
+
             } else {
                 $result = $db->get_results("SELECT * FROM ".$collections[$request[0]]." where id=".$request[1],ARRAY_A);   
             }
@@ -102,16 +120,52 @@
 
             break;
         case 'HEAD':
-            //rest_head($request);  
+            //not implemented yet  
             break;
         case 'DELETE':
-            //rest_delete($request);  
+            if (count($request)>2) {
+                header("HTTP/1.0 400 Bad Request"); //400:Bad Request
+                die('Too many parameters in URI'); 
+            }   elseif (count($request)==2) {
+                if ($db->query("DELETE FROM ".$collections[$request[0]]." where id = $request[1]")) {
+                    header("HTTP/1.0 202 Accepted"); //202 Accepted 
+                } else {
+                    header("HTTP/1.0 404 Not Found"); //404 Not Found 
+                    die('Not Found');
+                } 
+
+            }   else {
+                //echo dump_headers(); 
+                //print_r($_REQUEST); 
+                //print_r($_POST);
+                $out_query=array(); 
+                foreach ($_REQUEST as $name=>$value) {
+
+                    if ($fields[$request[0]]<>'')   {
+                        $qf=array();
+                        $qf=explode(',',$fields[$request[0]]);
+                        foreach ($qf as $field_name) {
+                            if ($name==$field_name and mysql_escape_string($value)==$value) {
+                                $out_query[]=" $name = '$value'";
+                            }
+                        }
+                    }
+                } 
+                $query= implode(" and ",$out_query);
+                //echo $query;
+                if ($db->query("DELETE FROM ".$collections[$request[0]]." where $query")) {
+                    header("HTTP/1.0 202 Accepted"); //202 Accepted 
+                } else {
+                    header("HTTP/1.0 404 Not Found"); //404 Not Found 
+                    die('Not Found');
+                } 
+            }
             break;
         case 'OPTIONS':
-            //rest_options($request);    
+            //not implemented yet    
             break;
         default:
-            //rest_error($request);  
+            //not implemented yet  
             break;
     }
 

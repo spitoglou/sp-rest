@@ -44,12 +44,40 @@
             }
         }
         /*if (!array_search($args[0],$collections))   {
-            return "$args[0] not a valid collection";
+        return "$args[0] not a valid collection";
         } */
+        if ($collections[$args[0]]=='') {
+            return  $collections[$args[0]]." $args[0] not a valid collection";
+        }
         if (count($args)>1 and !is_numeric($args[1])) {
             return "$args[1] not a valid index";
         }
         return "OK";
+    }
+
+    function process_query($collection,$q) {
+
+        global $fields;
+        $out_query=array(); 
+        foreach ($q as $name=>$value) {
+
+            if ($fields[$collection]<>'')   {
+                $qf=array();
+                $qf=explode(',',$fields[$collection]);
+                //print_r($qf);
+                foreach ($qf as $field_name) {
+                    if ($name==$field_name and mysql_escape_string($value)==$value) {
+                        if (is_numeric($value)) {
+                            $out_query[]=" $name = $value";
+                        } else {
+                            $out_query[]=" $name like '$value'";
+                        }
+
+                    }
+                }
+            }
+        } 
+        return implode(" and ",$out_query);
     }
 
 ?>
