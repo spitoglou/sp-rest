@@ -80,10 +80,37 @@
             //not implemented yet  
             break;
         case 'POST':   //under construction 
-            echo dump_headers();
-            print_r($_POST);
-            print_r($_SERVER);
-              
+            //echo dump_headers();
+            //print_r($_POST);
+            //print_r($_SERVER);
+            if (count($request)>1) {
+                header("HTTP/1.0 400 Bad Request"); //400:Bad Request
+                die('Too many parameters in URI'); 
+            }   else {
+                $out_query1=array(); 
+                $out_query2=array();
+                foreach ($_POST as $name=>$value) {
+
+                    if ($fields[$request[0]]<>'')   {
+                        $qf=array();
+                        $qf=explode(',',$fields[$request[0]]);
+                        foreach ($qf as $field_name) {
+                            if ($name==$field_name and mysql_escape_string($value)==$value) {
+                                $out_query1[]="$name";
+                                $out_query2[]="'$value'"; 
+                            }
+                        }
+                    }
+                } 
+                $query= "(".implode(",",$out_query1).") values (".implode(",",$out_query2).")";
+                //echo $query;
+                if (count($out_query1)>0 and $db->query("insert into ".$collections[$request[0]]." $query")) {
+                    header("HTTP/1.0 201 Created"); //201 Created 
+                } else {
+                    header("HTTP/1.0 500 Internal Server Error"); //500 Internal Server Error 
+                    die('Cound not create resource');
+                } 
+            }
             break;
         case 'GET':
 
@@ -138,9 +165,6 @@
                 } 
 
             }   else {
-                //echo dump_headers(); 
-                //print_r($_REQUEST); 
-                //print_r($_POST);
                 $out_query=array(); 
                 foreach ($_REQUEST as $name=>$value) {
 
