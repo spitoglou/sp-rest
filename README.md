@@ -1,6 +1,5 @@
-# sp-rest
-
-RESTful Services Database Wrapper
+![logo](http://s7.postimage.org/4214k624r/my_Logo.png)  
+**RESTful Services Database Wrapper**
 
 ## Description
   
@@ -12,11 +11,11 @@ It allows you to describe mapping between your existing data and web service "co
 
 ##Usage Example
 
-I have an existing database:
-Table: employees
-Fields: id (it's mandatory for the tables to have a primary integer key under the name "id"), first_name, last_name, salary, hidden_field
+I have an existing database:  
+**Table**: employees  
+**Fields**: id (it's mandatory for the tables to have a primary integer key under the name "id"), first_name, last_name, salary, hidden_field
 
-First, I would configure my database settings in the *config.inc* file:
+First, I would configure my database settings in the ***config.inc*** file:
 
     $config['dbtype']='mysql';    
     $config['dbhost']='localhost';
@@ -26,7 +25,7 @@ First, I would configure my database settings in the *config.inc* file:
 
 Then, I would make a mapping between the table and my desired "collection" (let's say cs-employees):
 
-In the *collections.inc* file:
+In the ***collections.inc*** file:
 
     $collections['cs-employees']='employees';
     $fields['cs-employees']='first_name,last_name,salary'; //I exclude the hidden_field field so it will not be accesible by the web service 
@@ -51,12 +50,16 @@ If everything works as it should you can:
         
 ##ChangeLog
 
-17/1/2013
-* created new file to hold configuration details - config.inc  
-* created new file for the database connection - db_conn.inc (having in mind future db abstraction)
-* created new file for collections definitons - collections.inc
-* Added query support to the GET method
-* Added validations - whitelisting for error and sql injection prevention
+18/1/2012  
+* implemented POST method
+
+
+17/1/2013  
+* created new file to hold configuration details config.inc    
+* created new file for the database connection db_conn.inc (having in mind future db abstraction)  
+* created new file for collections definitons collections.inc  
+* Added query support to the GET method  
+* Added validations whitelisting for error and sql injection prevention  
 * Added support for the DELETE method  
  
 
