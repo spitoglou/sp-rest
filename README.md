@@ -13,7 +13,7 @@ It allows you to describe mapping between your existing data and web service "co
 
 I have an existing database:  
 **Table**: employees  
-**Fields**: id (it's mandatory for the tables to have a primary integer key under the name "id"), first_name, last_name, salary, hidden_field
+**Fields**: id , first_name, last_name, salary, hidden_field
 
 First, I would configure my database settings in the ***config.inc*** file:
 
@@ -29,6 +29,7 @@ In the ***collections.inc*** file:
 
     $collections['cs-employees']='employees';
     $fields['cs-employees']='first_name,last_name,salary'; //I exclude the hidden_field field so it will not be accesible by the web service 
+    $pk['cs-employees']='id'; // primary key
 
 If everything works as it should you can:
 ###Read records from the DB
@@ -49,6 +50,12 @@ If everything works as it should you can:
     The data should be sent in "form-data" (or "x-www-form-urlencoded") format
         
 ##ChangeLog
+
+21/1/2012
+* implemented support for Oracle Database  (and solved the greek utf8 riddle)
+* added mapping option for primary key (field with name "id" no more mandatory)  
+* GET retrieves only mapped fields (instead of *)  
+* updated documentation  
 
 18/1/2012  
 * implemented POST method

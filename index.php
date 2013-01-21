@@ -20,7 +20,7 @@
     */
     include("lib/ezsql/shared/ez_sql_core.php");
     include("lib/ezsql/mysql/ez_sql_mysql.php");
-
+    include("lib/ezsql/oracle8_9/ez_sql_oracle8_9.php");
     /**
     * Database connection
     */
@@ -116,14 +116,14 @@
 
             if (count($request)==1) {
                 if ($query){
-                    $result = $db->get_results("SELECT * FROM ".$collections[$request[0]]." where $query",ARRAY_A);
+                    $result = $db->get_results("SELECT ".$fields[$request[0]]." FROM ".$collections[$request[0]]." where $query",ARRAY_A);
                     //$db->debug(); 
                 }   else {
-                    $result = $db->get_results("SELECT * FROM ".$collections[$request[0]],ARRAY_A); 
+                    $result = $db->get_results("SELECT ".$fields[$request[0]]." FROM ".$collections[$request[0]],ARRAY_A); 
                 }
 
             } else {
-                $result = $db->get_results("SELECT * FROM ".$collections[$request[0]]." where id=".$request[1],ARRAY_A);   
+                $result = $db->get_results("SELECT ".$fields[$request[0]]." FROM ".$collections[$request[0]]." where ".$pk[$request[0]]."=".$request[1],ARRAY_A);   
             }
 
             if (count($result)>0) {
@@ -157,7 +157,7 @@
                 header("HTTP/1.0 400 Bad Request"); //400:Bad Request
                 die('Too many parameters in URI'); 
             }   elseif (count($request)==2) {
-                if ($db->query("DELETE FROM ".$collections[$request[0]]." where id = $request[1]")) {
+                if ($db->query("DELETE FROM ".$collections[$request[0]]." where ".$pk[$request[0]]."= $request[1]")) {
                     header("HTTP/1.0 202 Accepted"); //202 Accepted 
                 } else {
                     header("HTTP/1.0 404 Not Found"); //404 Not Found 
