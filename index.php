@@ -77,7 +77,38 @@
     //main response procedures
     switch ($method) {
         case 'PUT':
-            //not implemented yet  
+            if (count($request)<>2) {
+                header("HTTP/1.0 400 Bad Request"); //400:Bad Request
+                die('Wrong number of parameters in URI(must be 2)'); 
+            }   else  {
+                $out_query=array(); 
+                //echo dump_headers();
+                //print_r($_PUT);
+                //print_r($_SERVER);
+                parse_str(file_get_contents("php://input"),$put_vars);
+                //print_r($put_vars);
+                foreach ($put_vars as $name=>$value) {
+
+                    if ($fields[$request[0]]<>'')   {
+                        $qf=array();
+                        $qf=explode(',',$fields[$request[0]]);
+                        foreach ($qf as $field_name) {
+                            if ($name==$field_name and mysql_escape_string($value)==$value) {
+                                $out_query[]=" $name = '$value'";
+                            }
+                        }
+                    }
+                } 
+                $query= implode(", ",$out_query);
+                //echo $query;
+                if ($db->query("UPDATE ".$collections[$request[0]]." SET $query WHERE ".$pk[$request[0]]."=".$request[1])) {
+                    header("HTTP/1.0 202 Accepted"); //202 Accepted 
+                } else {
+                    header("HTTP/1.0 404 Not Found"); //404 Not Found 
+                    die('Not Found');
+                } 
+
+            }   
             break;
         case 'POST':   //under construction 
             //echo dump_headers();

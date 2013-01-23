@@ -42,23 +42,36 @@ If everything works as it should you can:
 
 ###Delete record from the DB
 
-    DELETE http://www.yourroot.com/cs-employees/{id}
+    DELETE http://www.yourroot.com/cs-employees/{primary key}
     
 ###Create Record to the DB
 
     POST http://www.yourroot.com/cs-employees/
     The data should be sent in "form-data" (or "x-www-form-urlencoded") format
+    
+###Update Record
+
+    PUT http://www.yourroot.com/cs-employees/{primary key}
+    The data should be sent in "form-data" (or "x-www-form-urlencoded") format
+    
+##Future Versions
+
+* Authentication Support  
+* Structured Error Responses  
         
 ##ChangeLog
 
-21/1/2012
+23/1/2013
+* implemented PUT method for Update Database Operation
+
+21/1/2013
 * implemented support for Oracle Database  (and solved the greek utf8 riddle)
 * added mapping option for primary key (field with name "id" no more mandatory)  
 * GET retrieves only mapped fields (instead of *)  
 * updated documentation  
 
-18/1/2012  
-* implemented POST method
+18/1/2013  
+* implemented POST method for Create Database Operation
 
 
 17/1/2013  

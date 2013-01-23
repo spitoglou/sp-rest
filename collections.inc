@@ -6,7 +6,10 @@
     //$pk[{collection_name}]="{primary_key}"
     $collections = array();
     $fields = array();  
-    $collections["test"]="CS_PATIENTS_TABLE";
+    /*$collections["test"]="CS_PATIENTS_TABLE";
     $fields["test"]="OPAT_ID,OPAT_FIRST_NAME,OPAT_LAST_NAME";
-    $pk['test']="OPAT_ID";
+    $pk['test']="OPAT_ID";*/
+    $collections["test"]="rest1";
+    $fields["test"]="id,descr,lname";
+    $pk['test']="id";
 ?>
