@@ -15,12 +15,7 @@
     */
     include("config.inc");
 
-    /**
-    * ez_sql db wrapper
-    */
-    include("lib/ezsql/shared/ez_sql_core.php");
-    include("lib/ezsql/mysql/ez_sql_mysql.php");
-    include("lib/ezsql/oracle8_9/ez_sql_oracle8_9.php");
+    
     /**
     * Database connection
     */

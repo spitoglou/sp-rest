@@ -10,6 +10,6 @@
     $fields["test"]="OPAT_ID,OPAT_FIRST_NAME,OPAT_LAST_NAME";
     $pk['test']="OPAT_ID";*/
     $collections["test"]="rest1";
-    $fields["test"]="id,descr,lname";
+    $fields["test"]="id,description";
     $pk['test']="id";
 ?>
