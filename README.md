@@ -40,6 +40,12 @@ If everything works as it should you can:
     
     GET http://www.yourroot.com/cs-employees?first_name=john&last_name=%D%oe% (retrieves query - uses "like" for alphanumeric values) 
 
+Update(ver.1):
+3 new query options have been implemented:
+order: defines the sorting of the result. Uses SQL syntax e.g. ?order=last_name asc,id desc
+limit: limits the maximum number of records retrieved from the db
+offset: sets the offset of the retrieved records (CAUTION: it cannot be used without the limit clause-it will have no effect at all)
+
 ###Delete record from the DB
 
     DELETE http://www.yourroot.com/cs-employees/{primary key}

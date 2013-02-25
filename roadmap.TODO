@@ -1,0 +1,12 @@
+ Version 1.01:
+
+ ■ Limit & Offset (Mysql) @done (13-02-20 18:20)
+ ■ Limit & Offset (Oracle) @done (13-02-20 18:20)
+ ■ Add option for sorting SQL "order" clause @done (13-02-20 18:21)
+
+ □ commit to GitHub
+ □ Update documentation
+
+ Version 2:
+ This will be the milestone of implementing custom functionality (besides the basic CRUD operations). 
+ The User Agent will have the option to call a specific process on a collection. The processes will be predefined in the configuration, will apply to specific collections and will have allowed HTTP verbs attached to them.

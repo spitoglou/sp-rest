@@ -7,11 +7,15 @@
   
   
   $config=array();
+
+  // Database Configuration
   
-  $config['dbtype']='mysql';    //'mysql' or 'orcl'
+  $config['dbtype']='orcl';    //'mysql' or 'orcl'
   $config['dbhost']='localhost'; //mysql
   $config['database']='rest_test'; //mysql
-  $config['service']='(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=csdb1)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=csorcl)))'; //orcl
-  $config['dbuser']='root';  //regardless db
-  $config['dbpass']='';  //regardless db
+  $config['service']='(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.1.70)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orcl_dev)))'; //orcl
+  $config['dbuser']='PROT';  //regardless db
+  $config['dbpass']='PROT';  //regardless db
+
+  
 ?>

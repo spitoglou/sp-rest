@@ -142,10 +142,36 @@
 
             if (count($request)==1) {
                 if ($query){
-                    $result = $db->get_results("SELECT ".$fields[$request[0]]." FROM ".$collections[$request[0]]." where $query",ARRAY_A);
+                    $send_to_db="SELECT ".$fields[$request[0]];
+                    $send_to_db.=" FROM ".$collections[$request[0]];
+                    $send_to_db .= ' WHERE 1=1 ';
+                    if ($query['where_clause']) {
+                        $send_to_db .= " AND ".$query['where_clause'];
+                    }
+                    if ($query['order_clause']) {
+                        $send_to_db .= " order by ".$query['order_clause'];
+                    }  
+                    if ($query['limit']) {
+                        switch ($config['dbtype']) {
+                            case 'mysql':
+                                $send_to_db .= " limit ";
+                                if ($query['offset']) {
+                                    $send_to_db .= $query['offset'].",";
+                                }
+                                $send_to_db .= $query['limit'];           
+                                break;
+                            
+                            case 'orcl':
+                                $send_to_db = "SELECT a.*,ROWNUM rnum FROM (".$send_to_db.") a where ROWNUM<=".($query['offset']+$query['limit']);
+                                $send_to_db= "SELECT * FROM (".$send_to_db.") WHERE rnum>".(0 +$query['offset']);
+                                break;
+                        }
+                    }
+                    $result = $db->get_results($send_to_db,ARRAY_A);
                     //$db->debug(); 
                 }   else {
-                    $result = $db->get_results("SELECT ".$fields[$request[0]]." FROM ".$collections[$request[0]],ARRAY_A); 
+                    $result = $db->get_results("SELECT ".$fields[$request[0]]." FROM ".$collections[$request[0]],ARRAY_A);
+                    //$db->debug(); 
                 }
 
             } else {

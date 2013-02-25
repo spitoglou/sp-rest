@@ -45,22 +45,36 @@
         }
         /*if (!array_search($args[0],$collections))   {
         return "$args[0] not a valid collection";
-        } */
-        if ($collections[$args[0]]=='') {
-            return  $collections[$args[0]]." $args[0] not a valid collection";
-        }
-        if (count($args)>1 and !is_numeric($args[1])) {
-            return "$args[1] not a valid index";
-        }
-        return "OK";
+    } */
+    if ($collections[$args[0]]=='') {
+        return  $collections[$args[0]]." $args[0] not a valid collection";
     }
+    if (count($args)>1 and !is_numeric($args[1])) {
+        return "$args[1] not a valid index";
+    }
+    return "OK";
+}
 
-    function process_query($collection,$q) {
+function process_query($collection,$q) {
 
-        global $fields;
-        $out_query=array(); 
-        foreach ($q as $name=>$value) {
+    global $fields;
+    global $config;
+    $out_query=array(); 
+    foreach ($q as $name=>$value) {
+        switch ($name) {
+            case 'offset':
+            $offset=$value;
+            break;
 
+            case 'limit':
+            $limit=$value;
+            break;
+
+            case 'order':
+            $order=$value;
+            break;
+
+            default:
             if ($fields[$collection]<>'')   {
                 $qf=array();
                 $qf=explode(',',$fields[$collection]);
@@ -76,8 +90,19 @@
                     }
                 }
             }
-        } 
-        return implode(" and ",$out_query);
-    }
+            break;
+        }
+
+    } 
+
+    $output=array();
+    $output['where_clause']= implode(" and ",$out_query);
+    $output['limit']=$limit;
+    $output['offset']=$offset;
+    $output['order_clause']=$order;
+    
+
+    return $output;
+}
 
 ?>
