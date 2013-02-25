@@ -45,7 +45,7 @@
     $out=validate($request);
     if ($out<>"OK") {
         header("HTTP/1.0 400 Bad Request"); //400:Bad Request
-        die($out);
+        out_last_error('400',$out);
     }
 
 
@@ -53,7 +53,8 @@
     $query='';
     if (count($_GET)>0 and !($query=process_query($request[0],$_GET))) {
         header("HTTP/1.0 400 Bad Request"); //400:Bad Request
-        die('Problem with the query (?...) part of the uri');
+        //die('Problem with the query (?...) part of the uri');
+        out_last_error('400','Problem with the query (?...) part of the uri');
     } 
     //echo $query;
 
@@ -66,7 +67,8 @@
 
     }   else {
         header("HTTP/1.0 400 Bad Request"); //400:Bad Request 
-        die('Not supported method defined in call headers');
+        //die('Not supported method defined in call headers');
+        out_last_error('400','Not supported method defined in call headers');
     }
 
     //main response procedures
@@ -74,7 +76,8 @@
         case 'PUT':
             if (count($request)<>2) {
                 header("HTTP/1.0 400 Bad Request"); //400:Bad Request
-                die('Wrong number of parameters in URI(must be 2)'); 
+                //die('Wrong number of parameters in URI(must be 2)'); 
+                out_last_error('400','Wrong number of parameters in URI(must be 2)');
             }   else  {
                 $out_query=array(); 
                 //echo dump_headers();
@@ -100,7 +103,7 @@
                     header("HTTP/1.0 202 Accepted"); //202 Accepted 
                 } else {
                     header("HTTP/1.0 404 Not Found"); //404 Not Found 
-                    die('Not Found');
+                    out_last_error('400');
                 } 
 
             }   
@@ -111,7 +114,7 @@
             //print_r($_SERVER);
             if (count($request)>1) {
                 header("HTTP/1.0 400 Bad Request"); //400:Bad Request
-                die('Too many parameters in URI'); 
+                out_last_error('400','Too many parameters in URI'); 
             }   else {
                 $out_query1=array(); 
                 $out_query2=array();
@@ -134,7 +137,7 @@
                     header("HTTP/1.0 201 Created"); //201 Created 
                 } else {
                     header("HTTP/1.0 500 Internal Server Error"); //500 Internal Server Error 
-                    die('Cound not create resource');
+                    out_last_error('500');
                 } 
             }
             break;
@@ -197,7 +200,7 @@
                 }
             } else {
                 header("HTTP/1.0 404 Not Found"); //404:Not Found
-                die(); 
+                out_last_error('404','Empty Resultset'); 
             }
 
             break;
@@ -207,13 +210,16 @@
         case 'DELETE':
             if (count($request)>2) {
                 header("HTTP/1.0 400 Bad Request"); //400:Bad Request
-                die('Too many parameters in URI'); 
+                //die('Too many parameters in URI'); 
+                out_last_error('400','Too many parameters in URI');
             }   elseif (count($request)==2) {
+                $db->show_errors();
                 if ($db->query("DELETE FROM ".$collections[$request[0]]." where ".$pk[$request[0]]."= $request[1]")) {
                     header("HTTP/1.0 202 Accepted"); //202 Accepted 
                 } else {
                     header("HTTP/1.0 404 Not Found"); //404 Not Found 
-                    die('Not Found');
+                    //echo 'Not Found';
+                    out_last_error('404');
                 } 
 
             }   else {
@@ -236,7 +242,8 @@
                     header("HTTP/1.0 202 Accepted"); //202 Accepted 
                 } else {
                     header("HTTP/1.0 404 Not Found"); //404 Not Found 
-                    die('Not Found');
+                    out_last_error('404');
+                    //die('Not Found');
                 } 
             }
             break;

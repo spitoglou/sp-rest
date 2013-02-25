@@ -105,4 +105,33 @@ function process_query($collection,$q) {
     return $output;
 }
 
+function out_last_error($code,$descr='') {
+    global $output;
+    global $db;
+
+    $error_array=array();
+    $error_array['err_status_code']=$code;
+    if ($descr) {
+        $error_array['error_descr']=$descr;
+    } else {
+        $error_array['error_descr']=$db->last_error;
+        $error_array['error_query']=$db->last_query;
+    }
+
+    switch ($output) {
+        case 'json':
+        header('Content-type: application/json');
+        echo json_encode($error_array);
+        break;
+
+        case 'xml':
+        header('Content-type: text/xml');    
+        $array2XML = new CArray2xml2array();       
+        $array2XML->setArray($error_array);
+        echo $array2XML->saveArray('error');
+        break;
+    }
+
+}
+
 ?>

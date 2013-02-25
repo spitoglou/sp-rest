@@ -47,7 +47,15 @@ If everything works as it should you can:
 `?order=last_name asc,id desc`
 
 **limit**: limits the maximum number of records retrieved from the db  
-**offset**: sets the offset of the retrieved records (CAUTION: it cannot be used without the limit clause-it will have no effect at all)
+**offset**: sets the offset of the retrieved records (CAUTION: it cannot be used without the limit clause-it will have no effect at all)  
+eg.  
+`?limit=5` (gets the 5 first records)  
+`?limit=5&offset=5` (gets rows from 6th to 10nth)  
+`?offset=10` (ignored)
+
+**Update(ver.1.1):**   
+The script now provides support for structured error messages.  
+It takes under consideration the request Accept header and returns json or xml accordingly.
 
 ###Delete record from the DB
 
@@ -66,7 +74,7 @@ If everything works as it should you can:
 ##Future Versions
 
 * Authentication Support  
-* Structured Error Responses  
+* **DONE** *(v.1.1)* Structured Error Responses  
         
 ##ChangeLog
 
