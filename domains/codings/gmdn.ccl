@@ -1,0 +1,44 @@
+<?php
+
+$response = new Response;
+
+$limit=200;
+$fp = \fopen('include/codefiles/gmdn.csv','r') or die("can not open file");
+$gmdn=array();
+$i=0;
+while ($csv_line = fgetcsv($fp,1024,';') and $i<$limit){
+	
+	$gmdn_long_code_q=$_GET['gmdn_long_code'];
+	if ($gmdn_long_code_q and mb_stripos($csv_line[0], $gmdn_long_code_q)===false) continue;
+	$name_q=$_GET['name'];
+	if ($name_q and mb_stripos($csv_line[2], $name_q)===false) continue;
+	$gmdn_short_code_q=$_GET['gmdn_short_code'];
+	if ($gmdn_short_code_q and mb_stripos($csv_line[1], $gmdn_short_code_q)===false) continue;
+	$gaac_q=$_GET['gaac'];
+	if ($gaac_q and mb_stripos($csv_line[3], $gaac_q)===false) continue;
+	$paac_q=$_GET['paac'];
+	if ($paac_q and mb_stripos($csv_line[4], $paac_q)===false) continue;
+
+	$line_ext['row_num']=strval($i+1);
+	$line_ext['gmdn_long_code']=$csv_line[0];
+	$line_ext['gmdn_short_code']=$csv_line[1];
+	$line_ext['name']=$csv_line[2];
+	$line_ext['gaac']=$csv_line[3];
+	$line_ext['paac']=$csv_line[4];
+	
+
+	$gmdn[]=$line_ext;
+	$i++;
+}
+
+fclose($fp) or die("can not close file");
+if (count($gmdn)>0) {
+	$response->responseArray=$gmdn;
+	$response->cache='50';
+	$response->finalSend();
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+
+?>

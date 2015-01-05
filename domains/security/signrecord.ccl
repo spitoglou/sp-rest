@@ -1,0 +1,48 @@
+<?php
+
+$p=$request->path;
+$response=new Response;
+
+if (count($p)!==4) {
+	Generic::httpError('HTTP/1.1 400 Bad Request','400','Malformed Request');
+}
+
+$sql="SELECT * FROM {$p[1]} where {$p[2]}= '{$p[3]}'"; //die($sql);
+
+$result = $db->get_results($sql,ARRAY_A); //$db->debug();   
+
+
+if (count($result)>0) {
+	$plain=json_encode($result); //die($plain);
+
+	$rsa = new Crypt_RSA();
+	$rsa->loadKey(file_get_contents('private.key')); // private key
+	$rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+	$signature = $rsa->sign($plain);//die($signature);
+	$encodedSig=base64_encode($signature);
+
+	$guid = Generic::getGUID();//die($guid);
+
+	$updSql= "UPDATE CS.CS_SIGNATURES SET SIG_OLD=1 where SIG_TABLE='{$p[1]}' AND SIG_FIELD='{$p[2]}' AND SIG_VALUE='{$p[3]}'"; //die($updSql);
+	/*if (!$db->query($updSql)) {
+		Generic::httpError('HTTP/1.1 500 Internal Server Error', '500', 'Could Not Access Signatures Repo');
+	}*/
+
+	$insSql="INSERT INTO CS.CS_SIGNATURES (SIG_UUID,SIG_TABLE,SIG_FIELD,SIG_VALUE,SIG_PLAIN,SIG_SIGNATURE) VALUES ('{$guid}','{$p[1]}','{$p[2]}','{$p[3]}','{$plain}','{$encodedSig}')";//die($insSql);
+
+	if ($db->query($insSql)) {
+            $response->sendStatusHeader='HTTP/1.1 201 Created';
+            $response->responseArray=array('status' => 'created');
+            $response->finalSend();
+
+        } else {
+        	//$db->debug();
+            Generic::httpError('HTTP/1.1 500 Internal Server Error', '500', 'Could Not Create Signature Record');
+        }
+
+
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+

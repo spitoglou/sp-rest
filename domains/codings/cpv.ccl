@@ -1,0 +1,39 @@
+<?php
+
+//require_once('lib/FirePHPCore/FirePHP.class.php');
+//$firephp = FirePHP::getInstance(true);
+$test=new TestClass;
+$response = new Response;
+
+$limit=200;
+$fp = fopen('include/codefiles/cpv.csv','r') or die("can not open file");
+$cpv=array();
+$i=0;
+while ($csv_line = fgetcsv($fp,1024,';') and $i<$limit){
+	
+	$cpv_code_q=$_GET['cpv_code'];
+	if ($cpv_code_q and mb_stripos($csv_line[0], $cpv_code_q)===false) continue;
+	$name_q=$_GET['name'];
+	if ($name_q and mb_stripos($csv_line[1], $name_q)===false) continue;
+	
+
+	$line_ext['row_num']=strval($i+1);
+	$line_ext['cpv_code']=$csv_line[0];
+	$line_ext['name']=$csv_line[1];
+	
+
+	$cpv[]=$line_ext;
+	$i++;
+}
+//$firephp->info(memory_get_usage().' ..','Memory Usage');
+fclose($fp) or die("can not close file");
+if (count($cpv)>0) {
+	//$firephp->table('Test',$cpv);
+	$response->responseArray=$cpv;
+	$response->finalSend();
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+
+?>

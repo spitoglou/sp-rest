@@ -85,7 +85,7 @@ class CArray2xml2array {
 		global $debug;
 		$this->doc = new domdocument("1.0", $encoding);
 		$arr = array();
-		if (count($this->XMLArray) > 1){
+		if (count($this->XMLArray) > 0){
 			if ($rootName != ""){
 				$root = $this->doc->createElement($rootName);
 			}else{

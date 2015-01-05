@@ -1,0 +1,150 @@
+<?php
+
+require('lib/xml2array.php');
+
+$xmlBody = $request->requestBody;
+
+$success=true;
+
+// left just to check xml consistency
+if (!($xml = simplexml_load_string($xmlBody))) {
+    Generic::httpError('HTTP/1.1 400 Bad Request','400','Payload has inconsistent XML formatting');
+}
+
+
+$x1=xml2array($xmlBody);
+$x=$x1['ICS_Submission'];
+//print_r($x);
+$xmlData=array();
+
+$xmlData['facility']='4027';
+
+$date = new DateTime();
+$xmlData['sysdate']= $date->format('d/m/Y H:i:s');
+
+//Master data
+
+$xmlData['msg_control_id']=$x['msg_header_attr']['msg_control_id'];
+$xmlData['msg_type']=$x['msg_header_attr']['msg_type'];
+$xmlData['sendg_appl']=$x['msg_header_attr']['sendg_appl'];
+$xmlData['trigger_event']=$x['msg_header_attr']['trigger_event'];
+$xmlData['subm_date']=$x['submission_attr']['subm_date'];
+$xmlData['subm_srl_nbr']=$x['submission_attr']['subm_srl_nbr'];
+$xmlData['subm_srl_pfx']=$x['submission_attr']['subm_srl_pfx'];
+$xmlData['dbt_code']=$x['submission_attr']['dbt_code'];
+$xmlData['subm_categ']=$x['submission_attr']['subm_categ'];
+$xmlData['subm_totl_dbt']=$x['submission_attr']['subm_totl_dbt'];
+
+$xmlData['csii_id']= $db->get_var("SELECT seq_csii_id.NEXTVAL from DUAL");
+
+$sql= "INSERT INTO CS_INTERCOM_INVOICE ";
+$sql.= "VALUES (";
+$sql.= "{$xmlData['csii_id']},{$xmlData['facility']},";
+$sql.= "'{$xmlData['msg_type']}',";
+$sql.= "'{$xmlData['trigger_event']}',";
+$sql.= "'{$xmlData['subm_srl_pfx']}',";
+$sql.= "{$xmlData['subm_srl_nbr']},";
+$sql.= "'{$xmlData['subm_date']}',";
+$sql.= "'{$xmlData['dbt_code']}',";
+$sql.= "'{$xmlData['subm_categ']}',";
+$sql.= "{$xmlData['subm_totl_dbt']},";
+$sql.= "0,null,SYSDATE,'ICS','11111',0,0,null,null";
+$sql.= ")";
+
+if ($db->query($sql)) {
+    //$xmlData['message']='query returned true';
+} else {
+    //$xmlData['message']='query returned false';
+    $success=false;
+}
+
+
+
+//$xmlData['MasterSQL']=$sql;
+
+//Detailed Lines
+
+$counter=0;
+foreach ($x['submission']['invoice'] as $invKey => $invValue) {
+    //echo "|$invKey - $invValue  |  ";
+    //print_r($invValue);
+    foreach ($invValue['charged_service'] as $csKey => $csValue) {
+        //echo "|$csKey - $csValue  |  ";
+
+        if (is_numeric($csKey)) {
+            $counter++;
+            $xmlData[$counter]['csil_id']= $db->get_var("SELECT seq_csil_id.NEXTVAL from DUAL");
+            $xmlData[$counter]['adm_dept_code']=$csValue['admission_attr']['adm_dept_code'];
+            $xmlData[$counter]['srv_type_id']=$csValue['service_attr']['srv_type_id'];
+            $xmlData[$counter]['srv_code']=$csValue['service_attr']['srv_code'];
+            $xmlData[$counter]['srv_name']=$csValue['service_attr']['srv_name'];
+            $xmlData[$counter]['srv_dbt_share']=$csValue['ordered_service_attr']['srv_dbt_share'];
+            $sql= "INSERT INTO CS_INTERCOM_INVOICE_LINES ";
+            $sql.= "VALUES (";
+            $sql.= "{$xmlData[$counter]['csil_id']},{$xmlData['csii_id']},";
+            $sql.= "'{$xmlData[$counter]['srv_type_id']}',";
+            $sql.= "'{$xmlData[$counter]['srv_code']}',";
+            $sql.= "'{$xmlData[$counter]['srv_name']}',";
+            $sql.= "{$xmlData[$counter]['srv_dbt_share']},";
+            $sql.= "'{$xmlData[$counter]['adm_dept_code']}',";
+            $sql.= "SYSDATE";
+            $sql.= ")";
+            //$xmlData[$counter]['SQL']=$sql;
+            if (!$db->query($sql)) {
+              $success=false;
+            }
+          } else {
+            switch ($csKey) {
+              case 'admission_attr':
+              $counter++;
+              $xmlData[$counter]['csil_id']= $db->get_var("SELECT seq_csil_id.NEXTVAL from DUAL");
+              $xmlData[$counter]['adm_dept_code']=$csValue['adm_dept_code'];
+              break;
+              case 'service_attr':
+              $xmlData[$counter]['srv_type_id']=$csValue['srv_type_id'];
+              $xmlData[$counter]['srv_code']=$csValue['srv_code'];
+              $xmlData[$counter]['srv_name']=$csValue['srv_name'];
+              break;
+              case 'ordered_service_attr':
+              $xmlData[$counter]['srv_dbt_share']=$csValue['srv_dbt_share'];
+              $sql= "INSERT INTO CS_INTERCOM_INVOICE_LINES ";
+              $sql.= "VALUES (";
+              $sql.= "{$xmlData[$counter]['csil_id']},{$xmlData['csii_id']},";
+              $sql.= "'{$xmlData[$counter]['srv_type_id']}',";
+              $sql.= "'{$xmlData[$counter]['srv_code']}',";
+              $sql.= "'{$xmlData[$counter]['srv_name']}',";
+              $sql.= "{$xmlData[$counter]['srv_dbt_share']},";
+              $sql.= "'{$xmlData[$counter]['adm_dept_code']}',";
+              $sql.= "SYSDATE";
+              $sql.= ")";
+              //$xmlData[$counter]['SQL']=$sql;
+              if (!$db->query($sql)) {
+                $success=false;
+              }
+              break;
+              default:
+              break;
+            }
+
+        }
+
+
+    }
+  }
+
+
+$response=new Response;
+
+if ($success) {
+    $response->sendStatusHeader='HTTP/1.1 201 Created';
+    $response->responseArray=$xmlData;
+    //$response->responseArray=$test;
+    //$response->responseArray= (array) $xml;
+    $response->finalSend();
+} else {
+    $db->query("DELETE FROM CS_INTERCOM_INVOICE where CSII_ID={$xmlData['csii_id']}");
+    $db->query("DELETE FROM CS_INTERCOM_INVOICE_LINES where CSIL_CSII_ID={$xmlData['csii_id']}");
+    Generic::httpError('HTTP/1.1 500 Internal Server Error','500','Failed to create records based on given payload');
+}
+
+?>

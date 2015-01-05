@@ -1,0 +1,51 @@
+<?php
+
+$response = new Response;
+
+$limit=200;
+$fp = fopen('include/codefiles/082013.csv','r') or die("can not open file");
+$deltio=array();
+$i=0;
+while ($csv_line = fgetcsv($fp,1024,';') and $i<$limit){
+	
+	$atc_q=$_GET['atc'];
+	if ($atc_q and mb_stripos($csv_line[11], $atc_q)===false) continue;
+	$name_q=$_GET['name'];
+	if ($name_q and mb_stripos($csv_line[1], $name_q)===false) continue;
+	$substance_q=$_GET['substance'];
+	if ($substance_q and mb_stripos($csv_line[2], $substance_q)===false) continue;
+	$kak_q=$_GET['kak'];
+	if ($kak_q and mb_stripos($csv_line[12], $kak_q)===false) continue;
+	$eof_q=$_GET['eof'];
+	if ($eof_q and mb_stripos($csv_line[0], $eof_q)===false) continue;
+
+	$line_ext['row_num']=strval($i+1);
+	$line_ext['eof_code']=$csv_line[0];
+	$line_ext['name']=$csv_line[1];
+	$line_ext['active_substance']=$csv_line[2];
+	$line_ext['wh_price']=$csv_line[3];
+	$line_ext['hos_price']=$csv_line[4];
+	$line_ext['special_wh_price']=$csv_line[5];
+	$line_ext['ret_price']=$csv_line[6];
+	$line_ext['mhsyfa']=$csv_line[7];
+	$line_ext['n3816']=$csv_line[8];
+	$line_ext['ngtv']=$csv_line[9];
+	$line_ext['pstv']=$csv_line[10];
+	$line_ext['atc_code']=$csv_line[11];
+	$line_ext['kak']=$csv_line[12];
+
+	$deltio[]=$line_ext;
+	$i++;
+}
+
+fclose($fp) or die("can not close file");
+
+if (count($deltio)>0) {
+	$response->responseArray=$deltio;
+	$response->finalSend();
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+
+?>

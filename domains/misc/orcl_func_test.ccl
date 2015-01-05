@@ -1,0 +1,51 @@
+<?php
+
+$response = new Response;
+
+$result=array();
+
+if ($cusDb=oci_connect("CS", "CS","//192.168.1.14:1521/csorcl")) {
+	$result['Oracle Connection']="Succesful";
+} else {
+	$result['Oracle Connection']="Failed";
+}
+
+$sql = 'DECLARE RetVal BOOLEAN;BEGIN RetVal := CS.WH_TRANSACTION_PCK.FIND_LAST_KIND_IM_UPR (:comp_id, :warehouse_id, :year, :kind_id, :upr, :mes); END;';
+// $sql = 'BEGIN WH_TRANSACTION_PCK.FIND_LAST_KIND_IM_UPR(:comp_id, :warehouse_id, :year, :kind_id); END;';
+// $sql = "BEGIN CS.WH_TRANSACTION_PCK.FIND_LAST_KIND_IM_UPR ('1', '1', '2102', '3114', :upr, :mes); END;";
+$stmt = oci_parse($cusDb,$sql);
+
+oci_bind_by_name($stmt,':comp_id',$comp_id,32);
+oci_bind_by_name($stmt,':warehouse_id',$warehouse_id,32);
+oci_bind_by_name($stmt,':year',$year,32);
+oci_bind_by_name($stmt,':kind_id',$kind_id,32);
+oci_bind_by_name($stmt,':upr',$upr,32);
+oci_bind_by_name($stmt,':mes',$mes,32);
+
+$comp_id      ="1";
+$warehouse_id ="1";
+$year         ="2012";
+$kind_id      ="3114";
+
+if (oci_execute($stmt)) {
+	$result['Execute Statement']="Succesful";
+} else {
+	$result['Execute Statement']="Failed";
+}
+
+
+$result['upr']     =$upr;
+$result['message'] =$mes;
+$result['error']   =oci_error($stmt);
+
+
+
+if (count($result)>0) {
+	$response->responseArray=$result;
+	$response->finalSend();
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+
+?>

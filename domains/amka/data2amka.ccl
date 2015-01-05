@@ -1,0 +1,33 @@
+<?php
+
+$d2a_config=new Conf('config/data2amka_config.xml');
+
+$ws_user =$d2a_config->get('ws_user');
+$ws_pass =$d2a_config->get('ws_pass'); 
+$ws_uri = $d2a_config->get('ws_uri');
+
+require_once 'lib/idika/d2a.php';
+$d2a = new D2A($ws_user,$ws_pass,$ws_uri);
+
+if (count($request->path)<>1) {
+	Generic::httpError('HTTP/1.1 400 Bad Request','400','Η κλήση πρέπει να αποτελείται από μία παράμετρο');
+}
+
+if (!$d2a->client()) {
+	Generic::httpError('HTTP/1.1 500 Internal Server Error','500','Αποτυχία έναρξης σύνδεσης');
+}
+$res=array();
+
+$res2=$d2a->call($_GET);
+
+if (!is_numeric($res2['amkaval'])) {
+	Generic::httpError('HTTP/1.1 404 Not Found','404',$res2['amkaval']);
+}
+
+$res[]=$res2;
+
+$response=new Response;
+$response->responseArray=$res;
+$response->finalSend();
+
+?>

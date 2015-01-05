@@ -1,0 +1,10 @@
+<?xml version="1.0"?> 
+<conf> 
+	<!-- Amka2Data Configuration --> 
+	<item name="table">CS_PATIENTS_TABLE</item>
+	<item name="fields">OPAT_ID,OPAT_CODE,OPAT_FIRST_NAME,OPAT_LAST_NAME,OPAT_FATHER_NAME,OPAT_AMKA,OPAT_SEX_CD</item>
+	<item name="primaryKey">OPAT_ID</item>
+	<item name="allowedMethods">GET,PUT</item>
+	<item name="dbType">orcl</item>
+	<item name="auth">basic</item>
+</conf> 

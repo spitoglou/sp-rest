@@ -1,0 +1,6 @@
+<?php
+
+$secret=array();
+$secret['16FE6273-963E-4163-9BF2-EBAB25C06104']='01F9ADE6-1A48-4150-9865-6A4C1EB7D2BE';
+
+?>

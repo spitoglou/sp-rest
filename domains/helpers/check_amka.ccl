@@ -1,0 +1,29 @@
+<?php
+
+$response = new Response;
+
+$res=array();
+$res1=array();
+$amka = $request->path[1];
+
+$res1['amka_provided']= $amka;
+
+if (strlen($amka)<>11) {
+	$res1['amka_valid']='NO';
+	$res1['comments']='AMKA must be 11 characters long';
+} else {
+	$sum=intval($amka[0])+(intval(array_sum(str_split($amka[1]*2))))+intval($amka[2])+(intval(array_sum(str_split($amka[3]*2))))+intval($amka[4])+(intval(array_sum(str_split($amka[5]*2))))+intval($amka[6])+(intval(array_sum(str_split($amka[7]*2))))+intval($amka[8])+(intval(array_sum(str_split($amka[9]*2))))+intval($amka[10]);
+	$res1['amka_sum']=strval($sum);
+	if ((intval($sum) % 10)===0) {
+		$res1['amka_valid']='YES';
+	} else {
+		$res1['amka_valid']='NO';
+		$res1['comments']='Check Algorithm Failure';
+	}
+}
+$res['amka']=$res1;
+
+$response->responseArray=$res;
+$response->finalSend();
+
+?>

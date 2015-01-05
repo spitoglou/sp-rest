@@ -1,0 +1,111 @@
+<?php
+
+$response=new Response;
+
+$imoConfig =new Conf('config/imo_config.xml');
+
+$imo_server = $imoConfig->get('imo_server');
+$imo_port = $imoConfig->get('imo_port');
+$orgId = $imoConfig->get('imo_orgid');
+
+//Establish TCP connection
+
+$address=gethostbyname($imo_server);
+$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+
+if ($socket === false) {
+
+	Generic::httpError('HTTP/1.1 500 Internal Server Error','500',"socket_create() failed: reason: " . socket_strerror(socket_last_error));
+
+} 
+
+$connection = socket_connect($socket, $imo_server, $imo_port);
+
+if ($connection === false) {
+
+	Generic::httpError('HTTP/1.1 500 Internal Server Error','500',"socket_connect() failed.\nReason: ($connection) " . socket_strerror(socket_last_error($socket)));
+
+} 
+
+
+switch ($a=$request->path[1]) {
+	case 'searchicd':
+	if ($id=$request->path[2]){
+		
+		if ($response->output=='json') {
+			$outOperator=2;
+			$response->output='mirrorjson';
+		} else {
+			$outOperator=1;
+			$response->output='mirror';
+		}
+		$qstr = "search^||{$outOperator}^{$id}|DistinctBy(ICD10CM_CODE)^{$orgId}\n";
+	} else {
+		Generic::httpError('HTTP/1.1 400 Bad Request','400','Non Existent Id');
+	}
+	$resp=getResult($qstr)[2];
+	break;
+	case 'detail':
+	if ($id=$request->path[2]){
+		
+		$response->output='mirror';
+		
+		$qstr = "detail^{$id}^1^{$orgId}\n";
+	} else {
+		Generic::httpError('HTTP/1.1 400 Bad Request','400','Non Existent Id');
+	}
+	$resp="<?xml version='1.0'?><Result>".getResult($qstr)[2].'</Result>';
+
+
+	break;
+
+	case 'info':
+
+	$response->output='mirror';
+	$qstr = "info^^^{$orgId}\n";
+	$resp=getResult($qstr)[2];
+
+	break;
+	default:
+	Generic::httpError('HTTP/1.1 400 Bad Request','400','unknown command: '.$a);
+	break;
+}
+
+function getResult($query) {
+global $socket;
+if( ! socket_send ( $socket , $query , strlen($query) , 0)){
+$errorcode = socket_last_error();
+$errormsg = socket_strerror($errorcode);
+Generic::httpError('HTTP/1.1 500 Internal Server Error','500',"Could not send data: [$errorcode] $errormsg ");
+}
+
+$output=array();
+
+//1st payload
+if(socket_recv ( $socket , $buf1 , 2046 , MSG_WAITALL ) === FALSE){
+$errorcode = socket_last_error();
+$errormsg = socket_strerror($errorcode);
+
+die("Could not receive data: [$errorcode] $errormsg \n");
+Generic::httpError('HTTP/1.1 500 Internal Server Error','500',"Could not receive data: [$errorcode] $errormsg ");
+}
+$output[1]=$buf1;
+
+//2nd payload
+if(socket_recv ( $socket , $buf2 , 204600 , MSG_WAITALL ) === FALSE){
+$errorcode = socket_last_error();
+$errormsg = socket_strerror($errorcode);
+
+die("Could not receive data: [$errorcode] $errormsg \n");
+Generic::httpError('HTTP/1.1 500 Internal Server Error','500',"Could not receive data: [$errorcode] $errormsg ");
+}
+$output[2]=$buf2;
+return $output;
+}
+
+
+//$response->output='mirror';
+$response->responseText=$resp;
+$response->finalSend();
+
+?>

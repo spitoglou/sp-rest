@@ -1,0 +1,13 @@
+<?php
+
+$atom_array=array();
+
+$array2=array();
+
+$array2['date']='2013-12-15 15:00:00';
+$array2['title']= 'Title Τίτλος';
+$array2['content']= "Μια φορά κι έναν καιρό ήταν η κοκκινοσκουφίτσα...";
+
+$atom_array[]=$array2;
+
+?>

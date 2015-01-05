@@ -1,0 +1,35 @@
+<?php
+
+$a2dConfig =new Conf('config/amka2data_config.xml');
+
+$wsUser   =$a2dConfig->get('ws_user');
+$wsPass   =$a2dConfig->get('ws_pass'); 
+$wsUri    =$a2dConfig->get('ws_uri');
+
+require_once 'lib/idika/a2d.php';
+$a2d = new A2D($wsUser, $wsPass, $wsUri);
+
+if (count($request->path)<>1) {
+    Generic::httpError('HTTP/1.1 400 Bad Request', '400', 'Η κλήση πρέπει να αποτελείται από μία παράμετρο');
+}
+
+if (!$_GET['amka']) {
+    Generic::httpError('HTTP/1.1 400 Bad Request', '400', 'Δεν δόθηκε query parameter για τον ΑΜΚΑ');
+}
+
+if (!$a2d->client()) {
+    Generic::httpError('HTTP/1.1 500 Internal Server Error', '500', 'Αποτυχία έναρξης σύνδεσης');
+}
+$res=array();
+
+$resB=$a2d->call(array('amka'=>$_GET['amka']));
+
+/*if (!is_numeric($resB['amkaval'])) {
+    generic::http_error('HTTP/1.1 404 Not Found','404',$resB['amkaval']);
+}*/
+
+$res[]=$resB;
+
+$response=new Response;
+$response->responseArray=$res;
+$response->finalSend();

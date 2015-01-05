@@ -1,0 +1,35 @@
+<?php
+
+$response = new Response;
+
+$limit=200;
+$fp = fopen('include/codefiles/icd10.csv','r') or die("can not open file");
+$icd=array();
+$i=0;
+while ($csv_line = fgetcsv($fp,1024,';') and $i<$limit){
+	
+	$icd_code_q=$_GET['icd_code'];
+	if ($icd_code_q and mb_stripos($csv_line[0], $icd_code_q)===false) continue;
+	$name_q=$_GET['name'];
+	if ($name_q and mb_stripos($csv_line[1], $name_q)===false) continue;
+	
+
+	$line_ext['row_num']=strval($i+1);
+	$line_ext['icd_code']=$csv_line[0];
+	$line_ext['name']=$csv_line[1];
+	
+
+	$icd[]=$line_ext;
+	$i++;
+}
+
+fclose($fp) or die("can not close file");
+if (count($icd)>0) {
+	$response->responseArray=$icd;
+	$response->finalSend();
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+
+?>

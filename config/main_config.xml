@@ -1,0 +1,26 @@
+<?xml version="1.0"?> 
+<conf> 
+	<!-- Database Configuration --> 
+	<item name="dbhost">localhost</item>
+	<item name="database">rest_test</item>
+	<item name="my_dbuser">CS</item>
+	<item name="my_dbpass">CS</item>
+	<!-- <item name="service">(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.1.14)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=csorcl)))</item> -->
+	<item name="service">(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.1.70)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=orcl_dev)))</item>
+	<item name="or_dbuser">CS</item>
+	<item name="or_dbpass">CS</item>
+	<!-- CS Authentication Configuration --> 
+	<item name="cs_auth_enable">0</item>
+	<item name="auth_time_interval">57</item>
+	<item name="cs_auth_debug">1</item>
+	<item name="test_auth_responde_mode">1</item>
+	<!-- Basic Authentication Configuration --> 
+	<item name="basicAuthEnable">0</item>
+	<item name="basicAuthRealm">csWebServicesAuthServer</item>
+	<!-- Keep Log of all requests --> 
+	<item name="log">0</item> 
+	<!-- Error Reporting --> 
+	<item name="error_reporting">1</item> 
+	<!-- Time Zone --> 
+	<item name="timeZone">Europe/Athens</item>
+</conf> 

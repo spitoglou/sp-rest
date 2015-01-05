@@ -1,0 +1,6 @@
+<?xml version="1.0"?> 
+<conf> 
+	<item name="for_con_str">//192.168.1.14:1521/csorcl2</item>
+	<item name="for_dbuser">CS</item>
+	<item name="for_dbpass">CS</item>
+</conf> 

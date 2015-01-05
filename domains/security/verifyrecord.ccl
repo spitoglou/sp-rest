@@ -1,0 +1,39 @@
+<?php
+
+$p=$request->path;
+$response=new Response;
+
+if (count($p)!==4) {
+	Generic::httpError('HTTP/1.1 400 Bad Request','400','Malformed Request');
+}
+
+$sql="SELECT * FROM {$p[1]} where {$p[2]}= '{$p[3]}'"; //die($sql);
+
+$result = $db->get_results($sql,ARRAY_A); //$db->debug();   
+
+
+if (count($result)>0) {
+	$plain=json_encode($result); //die($plain);
+
+	
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+
+$sql="SELECT * FROM CS.CS_SIGNATURES WHERE SIG_TABLE='{$p[1]}' AND SIG_FIELD='{$p[2]}' AND SIG_VALUE = '{$p[3]}' AND SIG_OLD=0"; //die($sql);
+
+$result2 = $db->get_results($sql,ARRAY_A);
+
+if (count($result2)>0) {
+
+	$rsa = new Crypt_RSA();
+	$rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+	$rsa->loadKey(file_get_contents('public.key')); // public key
+	$res['verdict']= $rsa->verify($plain, base64_decode($result2[0]['SIG_SIGNATURE'])) ? 'verified' : 'unverified';
+
+	$response->responseArray=$res;
+	$response->finalSend();
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Not Found Signature Record');
+}

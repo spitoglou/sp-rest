@@ -1,0 +1,41 @@
+<?php
+
+$response = new Response;
+
+$limit=200;
+$fp = fopen('include/codefiles/ken.csv','r') or die("can not open file");
+$ken=array();
+$i=0;
+while ($csv_line = fgetcsv($fp,1024,';') and $i<$limit){
+	
+	$drg_code_q=$_GET['drg_code'];
+	if ($drg_code_q and mb_stripos($csv_line[0], $drg_code_q)===false) continue;
+	$name_q=$_GET['name'];
+	if ($name_q and mb_stripos($csv_line[1], $name_q)===false) continue;
+	$cost_q=$_GET['cost'];
+	if ($cost_q and mb_stripos($csv_line[2], $cost_q)===false) continue;
+	$average_days_q=$_GET['average_days'];
+	if ($average_days_q and mb_stripos($csv_line[3], $average_days_q)===false) continue;
+	
+
+	$line_ext['row_num']=strval($i+1);
+	$line_ext['drg_code']=$csv_line[0];
+	$line_ext['name']=$csv_line[1];
+	$line_ext['cost']=$csv_line[2];
+	$line_ext['average_days']=$csv_line[3];
+
+	$ken[]=$line_ext;
+	$i++;
+}
+
+fclose($fp) or die("can not close file");
+
+if (count($ken)>0) {
+	$response->responseArray=$ken;
+	$response->finalSend();
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+
+?>

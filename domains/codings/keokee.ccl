@@ -1,0 +1,65 @@
+<?php
+
+if ($request->path[1]=='csv') {
+	$size = filesize('include/codefiles/keokee.csv');
+	header('Content-Type: application/octet-stream');
+	header('Content-Length: '.$size);
+	header('Content-Disposition: attachment; filename=keokee.csv');
+	header('Content-Transfer-Encoding: binary');
+	$file = @ fopen('codefiles/keokee.csv', 'rb');
+	if ($file) {
+		fpassthru($file);
+	}
+	die();
+}
+
+$response = new Response;
+
+$limit=200;
+$fp = fopen('codefiles/keokee.csv','r') or die("can not open file");
+$keokee=array();
+$i=0;
+while ($csv_line = fgetcsv($fp,1024,';') and $i<$limit){
+
+	$edma=$_GET['edma'];
+	if ($edma and mb_stripos($csv_line[1], $edma)===false) continue;
+	$grc=$_GET['grc'];
+	if ($grc and mb_stripos($csv_line[2], $grc)===false) continue;
+	$eng_name=$_GET['eng_name'];
+	if ($eng_name and mb_stripos($csv_line[3], $eng_name)===false) continue;
+	$gr_name=$_GET['gr_name'];
+	if ($gr_name and mb_stripos($csv_line[5], $gr_name)===false) continue;
+	$synt=$_GET['synt'];
+	if ($synt and mb_stripos($csv_line[4], $synt)===false) continue;
+
+	if (strlen($csv_line[1]) <> 11) continue;
+
+	$line_ext['row_num']=strval($i+1);
+	$line_ext['general_category']=$csv_line[0];
+	$line_ext['edma_code']=$csv_line[1];
+	$line_ext['gr_code']=$csv_line[2];
+	$line_ext['eng_name']=$csv_line[3];
+	$line_ext['synt']=$csv_line[4];
+	$line_ext['gr_name']=$csv_line[5];
+	$line_ext['alt_name']=$csv_line[6];
+	$line_ext['comments']=$csv_line[7];
+	$line_ext['same_as']=$csv_line[8];
+	$line_ext['urgent']=$csv_line[9];
+	$line_ext['category']=$csv_line[10];
+
+
+	$keokee[]=$line_ext;
+	$i++;
+}
+
+fclose($fp) or die("can not close file");
+
+if (count($keokee)>0) {
+	$response->responseArray=$keokee;
+	$response->finalSend();
+
+} else {
+	Generic::httpError('HTTP/1.1 404 Not Found','404','Empty Resultset');
+}
+
+?>

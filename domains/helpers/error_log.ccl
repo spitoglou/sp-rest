@@ -1,0 +1,14 @@
+<?php
+
+$errorLines=file('logs/php_error_messages.log');
+
+$lines=5;
+
+if ($a=$request->path[1]) {
+	$lines=(int)$a;
+}
+$max=count($errorLines);
+echo '<pre>';
+for ($i=0; $i <= $lines; $i++) { 
+	echo $errorLines[$max-$i];
+}

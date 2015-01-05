@@ -1,0 +1,7 @@
+<?xml version="1.0"?> 
+<conf> 
+	<!-- Amka2Data Configuration --> 
+	<item name="ws_user">ygeiaa2dl</item>
+	<item name="ws_pass">c0ms0l</item>
+	<item name="ws_uri">http://www.idika.org.gr/webservices/AMKA/A2D_WS/service.asmx?WSDL</item>
+</conf> 

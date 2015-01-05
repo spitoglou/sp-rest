@@ -1,0 +1,61 @@
+<?php
+
+$testmode=0;
+
+$ekaConfig =new Conf('config/ekapty_config.xml');
+
+$token   =$ekaConfig->get('token');
+$uri    =$ekaConfig->get('uri');
+
+$ekapty = $_GET['ekapty'];
+
+if (!$ekapty)  {
+	Generic::httpError('HTTP/1.1 400 Bad Request','400','No ekapty code specified');
+}
+
+$request = $uri."&token={$token}&id_ekapty={$ekapty}";
+
+$curl=curl_init($request);
+curl_setopt_array($curl, array(
+	CURLOPT_RETURNTRANSFER => 1,
+	CURLOPT_SSL_VERIFYPEER => FALSE,
+	CURLOPT_USERAGENT => 'CSSA Request'
+	));
+
+$resp = curl_exec($curl);
+
+if(curl_errno($curl) and !$testmode)
+{
+	Generic::httpError('HTTP/1.1 500 Internal Server Error','500','Curl error: ' . curl_error($curl). " {$request}");
+}
+
+curl_close($curl);
+if($resp or $testmode) {
+	$result = json_decode($resp,true);
+} else {
+	Generic::httpError('HTTP/1.1 500 Internal Server Error','500','Unspecified Error');
+}
+
+
+if ($testmode) {
+	$result=array();
+	$result['request_status']='completed';
+	$result['query']='device_basic_properties';
+	$result['id_ekapty']='430267';
+	$result['device_name']='ΦΙΛΜ ΞΗΡΑΣ ΕΚΤΥΠΩΣΗΣ DRYSTAR DT 2 B 100 35CM X 43CM';
+	$result['device_status']='approved';
+	$result['device_supplier_ref']='EKL9M';
+	$result['supplier_vat_code']='094025805';
+	$result['device_gmdn_code']='40979';
+	$result['manufacturer']='AGFA HEALTHCARE N.V. ';
+}
+
+$res=array();
+$res[]=$result;
+//var_dump($result);
+
+$response=new Response;
+$response->responseArray=$res;
+$response->finalSend();
+
+?>

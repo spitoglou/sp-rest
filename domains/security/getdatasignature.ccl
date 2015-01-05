@@ -1,0 +1,13 @@
+<?php
+
+$body=$request->requestBody;
+
+$rsa = new Crypt_RSA();
+$rsa->loadKey(file_get_contents('private.key')); // private key
+$rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
+$signature = $rsa->sign($body);//die($signature);
+
+$response=new Response;
+$response->output='mirrorplain';
+$response->responseText=$signature;
+$response->finalSend();

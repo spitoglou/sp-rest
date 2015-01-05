@@ -1,0 +1,61 @@
+<?php
+
+
+$lcConfig =new Conf('config/lexicomp_config.xml');
+
+$lc_user = $lcConfig->get('lc_user');
+$lc_pass = $lcConfig->get('lc_pass');
+$uri = $lcConfig->get('lc_uri');
+
+switch ($a=$request->path[1]) {
+	case 'mono':
+		if ($id=$request->path[2]){
+			$request = $uri."mono/analyze/{$id}";
+		} else {
+			Generic::httpError('HTTP/1.1 400 Bad Request','400','Non Existent Id');
+		}
+		
+		break;
+	case 'monograph':
+		if ($id=$request->path[2]){
+			$request = $uri."monograph/{$id}";
+		} else {
+			Generic::httpError('HTTP/1.1 400 Bad Request','400','Non Existent Doc Id');
+		}
+		
+		break;
+	default:
+		Generic::httpError('HTTP/1.1 400 Bad Request','400','unknown command: '.$a);
+		break;
+}
+
+$curl=curl_init($request);
+curl_setopt_array($curl, array(
+	CURLOPT_RETURNTRANSFER => 1,
+	CURLOPT_HTTPHEADER => array('Authorization: Basic ' . base64_encode("{$lc_user}:{$lc_pass}")),
+	CURLOPT_USERAGENT => 'CSSA Request'
+	));
+
+$resp = curl_exec($curl);
+
+if(curl_errno($curl) and !$testmode)
+{
+	Generic::httpError('HTTP/1.1 500 Internal Server Error','500','Curl error: ' . curl_error($curl). " {$request}");
+}
+
+curl_close($curl);
+
+
+
+/*$res=array();
+$res[]=$resp;*/
+
+//var_dump($result);
+
+$response=new Response;
+//$response->responseArray=$res;
+$response->output='mirror';
+$response->responseText=$resp;
+$response->finalSend();
+
+?>
